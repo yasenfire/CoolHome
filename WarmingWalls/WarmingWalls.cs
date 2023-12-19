@@ -46,9 +46,12 @@ namespace CoolHome
             float deltaTemperature = this.GetDeltaTemperature();
             float numSecondsDelta = tod.GetTODSeconds(Time.deltaTime);
             StoredHeat -= Profile.Material.Conductivity * Profile.Size.Square * deltaTemperature * numSecondsDelta;
-            StoredHeat = Math.Max(StoredHeat, 0);
 
-            if (StoredHeat > 0 || CoolHome.spaceManager.HasRegisteredFires(this)) return;
+            float windowLoss = tod.IsDay() ? InteriorSpaceConfig.WINDOW_LOSS_DAY : InteriorSpaceConfig.WINDOW_LOSS_NIGHT;
+            StoredHeat -= windowLoss * Profile.WindowSquare * deltaTemperature * numSecondsDelta;
+
+            StoredHeat = Math.Max(StoredHeat, 0);
+            if (StoredHeat > 0 || CoolHome.spaceManager.HasRegisteredHeaters(this)) return;
             CoolHome.spaceManager.RemoveIrrelevantSpace(this);
             Destroy(this.gameObject);
         }
@@ -62,7 +65,11 @@ namespace CoolHome
             {
                 totalHeatPower += sh.Power;
                 sh.Seconds -= numSecondsDelta;
-                if (sh.Seconds < 0) ShadowHeaters.Remove(sh);
+                if (sh.Seconds < 0)
+                {
+                    if (sh.Type == "FIRE") CoolHome.spaceManager.UnregisterFire(sh.PDID);
+                    ShadowHeaters.Remove(sh);
+                }
             }
             if (totalHeatPower > 0) Heat(totalHeatPower);
 
@@ -75,9 +82,9 @@ namespace CoolHome
             return (float)(StoredHeat / (Profile.GetMass() * Profile.Material.HeatCapacity * 1000));
         }
 
-        public void AddShadowHeater(float power, float seconds)
+        public void AddShadowHeater(string type, string pdid, float power, float seconds)
         {
-            ShadowHeaters.Add(new ShadowHeater(power, seconds));
+            ShadowHeaters.Add(new ShadowHeater(type, pdid, power, seconds));
         }
 
         public void RemoveShadowHeaters()
@@ -88,6 +95,12 @@ namespace CoolHome
         public List<ShadowHeater> GetShadowHeaters()
         {
             return ShadowHeaters;
+        }
+
+        public InteriorSpaceConfig GetProfile()
+        {
+            if (Profile is null) Profile = new InteriorSpaceConfig();
+            return Profile;
         }
     }
 }

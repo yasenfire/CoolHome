@@ -37,16 +37,36 @@
 
         public static WallMaterial WOOD     = new WallMaterial(0.15f, 0.52f, 1.70f);
         public static WallMaterial CONCRETE = new WallMaterial(1.51f, 2.00f, 0.88f);
-        public static WallMaterial STEEL    = new WallMaterial(47f,   7.80f, 0.47f);
+        public static WallMaterial STEEL    = new WallMaterial(15f,   7.80f, 0.47f);
         public static WallMaterial GRANITE  = new WallMaterial(2.4f,  2.60f, 0.79f);
+
+        public static float WINDOW_LOSS_NIGHT = 3f;
+        public static float WINDOW_LOSS_DAY = 1.5f;
 
         public string Name = "default";
         public WallMaterial Material = WOOD;
+        public string MaterialTag = "WOOD";
         public WallSize Size = MEDIUM;
+        public string SizeTag = "MEDIUM";
+
+        public float WindowSquare = 6.8f;
 
         public float GetMass()
         {
             return Material.Density * 1000 * Size.Volume;
+        }
+
+        public void UpdateByTags()
+        {
+            if (MaterialTag == "WOOD") Material = WOOD;
+            else if (MaterialTag == "CONCRETE") Material = CONCRETE;
+            else if (MaterialTag == "STEEL") Material = STEEL;
+            else if (MaterialTag == "GRANITE") Material = GRANITE;
+
+            if (SizeTag == "SMALL") Size = SMALL;
+            else if (SizeTag == "MEDIUM") Size = MEDIUM;
+            else if (SizeTag == "LARGE") Size = LARGE;
+            else if (SizeTag == "HUGE") Size = HUGE;
         }
     }
 }

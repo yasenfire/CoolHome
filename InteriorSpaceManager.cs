@@ -16,13 +16,13 @@ namespace CoolHome
         GameObject? Instance;
 
         Dictionary<string, GameObject> TrackedSpaces = new Dictionary<string, GameObject>();
-        Dictionary<string, WarmingWalls> RegisteredFires = new Dictionary<string, WarmingWalls>();
+        Dictionary<string, WarmingWalls> RegisteredHeaters = new Dictionary<string, WarmingWalls>();
 
         public void LoadData()
         {
             if (Instance is null) return;
             TrackedSpaces.Clear();
-            RegisteredFires.Clear();
+            RegisteredHeaters.Clear();
 
             SaveManager saveManager = CoolHome.saveManager;
             InteriorSpaceManagerProxy dataToLoad = saveManager.LoadSpaceManager();
@@ -43,7 +43,7 @@ namespace CoolHome
 
             foreach (KeyValuePair<string, string> registeredFire in dataToLoad.RegisteredFires)
             {
-                if (TrackedSpaces[registeredFire.Value]) RegisteredFires.Add(
+                if (TrackedSpaces[registeredFire.Value]) RegisteredHeaters.Add(
                     registeredFire.Key,
                     TrackedSpaces[registeredFire.Value].GetComponent<WarmingWalls>()
                 );
@@ -58,7 +58,7 @@ namespace CoolHome
             InteriorSpaceManagerProxy dataToSave = new InteriorSpaceManagerProxy();
 
             dataToSave.CurrentSpace = CurrentSpace;
-            foreach (KeyValuePair<string, WarmingWalls> registeredFire in RegisteredFires)
+            foreach (KeyValuePair<string, WarmingWalls> registeredFire in RegisteredHeaters)
             {
                 string name = registeredFire.Value.gameObject.name;
                 dataToSave.RegisteredFires.Add(registeredFire.Key, name);
@@ -136,7 +136,8 @@ namespace CoolHome
             foreach (Fire f in allFires)
             {
                 if (f.GetRemainingLifeTimeSeconds() < 1) continue;
-                ww.AddShadowHeater(3000, f.GetRemainingLifeTimeSeconds());
+                string pdid = f.GetComponent<ObjectGuid>().PDID;
+                ww.AddShadowHeater("FIRE", pdid, 3000, f.GetRemainingLifeTimeSeconds());
             }
 
             CurrentSpace = null;
@@ -162,7 +163,7 @@ namespace CoolHome
             Fire[] allFires = GameObject.FindObjectsOfType<Fire>();
             foreach (Fire f in allFires)
             {
-                firesPresent[GetFireId(f.gameObject)] = f;
+                firesPresent[GetHeaterId(f.gameObject)] = f;
             }
 
             foreach (IndoorSpaceTrigger ist in triggers)
@@ -172,13 +173,14 @@ namespace CoolHome
                 if (ww is not null) wallComponents.Add(ww);
             }
 
-            foreach (KeyValuePair<string, WarmingWalls> entry in RegisteredFires)
+            foreach (KeyValuePair<string, WarmingWalls> entry in RegisteredHeaters)
             {
                 if (!wallComponents.Contains(entry.Value)) continue;
                 if (!firesPresent.ContainsKey(entry.Key)) continue;
                 Fire f = firesPresent[entry.Key];
                 if (f.GetRemainingLifeTimeSeconds() < 1) continue;
-                entry.Value.AddShadowHeater(3000, f.GetRemainingLifeTimeSeconds());
+                string pdid = f.GetComponent<ObjectGuid>().PDID;
+                entry.Value.AddShadowHeater("FIRE", pdid, 3000, f.GetRemainingLifeTimeSeconds());
             }
         }
 
@@ -201,7 +203,7 @@ namespace CoolHome
         {
             static void Postfix(IndoorSpaceTrigger __instance)
             {
-                __instance.m_UseOutdoorTemperature = true;
+                __instance.m_UseOutdoorTemperature = false;
                 CoolHome.spaceManager.EnterIndoorSpace(__instance);
             }
         }
@@ -239,9 +241,9 @@ namespace CoolHome
             }
         }
 
-        public bool HasRegisteredFires(WarmingWalls ww)
+        public bool HasRegisteredHeaters(WarmingWalls ww)
         {
-            return RegisteredFires.ContainsValue(ww);
+            return RegisteredHeaters.ContainsValue(ww);
         }
 
         public void RemoveIrrelevantSpace(WarmingWalls ww)
@@ -258,30 +260,28 @@ namespace CoolHome
             }
         }
 
-        static string GetFireId(GameObject fire)
+        static string GetHeaterId(GameObject fire)
         {
             ObjectGuid og = fire.GetComponent<ObjectGuid>();
             return og.PDID;
         }
 
-        void RegisterFire(Fire fire)
+        public void RegisterFire(Fire fire)
         {
             WarmingWalls? ww = GetCurrentSpace();
             if (ww is null)
             {
                 CreateNewSpace();
                 ww = GetCurrentSpace();
-                Melon<CoolHome>.Logger.Msg("Created new space for " + CurrentSpace);
             }
             if (ww is null) return;
-            string id = GetFireId(fire.gameObject);
-            if (!RegisteredFires.ContainsKey(id)) RegisteredFires[id] = ww;
+            string id = GetHeaterId(fire.gameObject);
+            if (!RegisteredHeaters.ContainsKey(id)) RegisteredHeaters[id] = ww;
         }
 
-        void UnregisterFire(Fire fire)
+        public void UnregisterFire(string id)
         {
-            string id = GetFireId(fire.gameObject);
-            RegisteredFires.Remove(id);
+            RegisteredHeaters.Remove(id);
         }
 
         [HarmonyPatch(typeof(Fire), nameof(Fire.TurnOn))]
@@ -298,14 +298,15 @@ namespace CoolHome
         {
             static void Postfix(Fire __instance)
             {
-                CoolHome.spaceManager.UnregisterFire(__instance);
+                string id = GetHeaterId(__instance.gameObject);
+                CoolHome.spaceManager.UnregisterFire(id);
             }
         }
 
-        WarmingWalls? GetSpaceAssociatedWithFire(GameObject fire)
+        WarmingWalls? GetSpaceAssociatedWithHeater(GameObject heater)
         {
-            string id = GetFireId(fire);
-            if (RegisteredFires.ContainsKey(id)) return RegisteredFires[id];
+            string id = GetHeaterId(heater);
+            if (RegisteredHeaters.ContainsKey(id)) return RegisteredHeaters[id];
             return null;
         }
 
@@ -316,7 +317,7 @@ namespace CoolHome
             {
                 if (__instance.m_TempIncrease < 1) return;
 
-                WarmingWalls? ww = CoolHome.spaceManager.GetSpaceAssociatedWithFire(__instance.gameObject);
+                WarmingWalls? ww = CoolHome.spaceManager.GetSpaceAssociatedWithHeater(__instance.gameObject);
                 if (ww is null) return;
 
                 float powerCoefficient = __instance.m_TempIncrease / __instance.m_MaxTempIncrease;

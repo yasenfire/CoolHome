@@ -67,6 +67,7 @@ namespace CoolHome
             if (File.Exists(Path.Combine(CoolHome.MODS_FOLDER_PATH, spaceFile)))
             {
                 data = JSON.Load(File.ReadAllText(Path.Combine(CoolHome.MODS_FOLDER_PATH, spaceFile))).Make<InteriorSpaceConfig>();
+                data.UpdateByTags();
                 return data;
             }
             else
