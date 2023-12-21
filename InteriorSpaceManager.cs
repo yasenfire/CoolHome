@@ -89,6 +89,7 @@ namespace CoolHome
             {
                 instance = new GameObject(ScriptName);
                 instance.AddComponent<Preserve>();
+                instance.AddComponent<PlayerHeater>();
             }
             Instance = instance;
             LoadData();
@@ -105,6 +106,11 @@ namespace CoolHome
         public bool IsInitialized()
         {
             return Instance is not null;
+        }
+
+        public string? GetCurrentSpaceName()
+        {
+            return CurrentSpace;
         }
 
         public WarmingWalls? GetCurrentSpace()
@@ -223,9 +229,9 @@ namespace CoolHome
             }
         }
 
-        void CreateNewSpace()
+        public WarmingWalls? CreateNewSpace()
         {
-            if (CurrentSpace is null) return;
+            if (CurrentSpace is null) return null;
 
             GameObject go = new GameObject();
             go.name = CurrentSpace;
@@ -239,6 +245,7 @@ namespace CoolHome
                 TrackedSpaces[CurrentSpace] = go;
                 ww.Profile = CoolHome.LoadSceneConfig(CurrentSpace);
             }
+            return ww;
         }
 
         public bool HasRegisteredHeaters(WarmingWalls ww)
