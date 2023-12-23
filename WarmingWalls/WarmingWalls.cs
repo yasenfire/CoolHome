@@ -11,6 +11,7 @@ namespace CoolHome
         public InteriorSpaceConfig? Profile;
         public double StoredHeat;
 
+        private int FramesToCull = 60;
         private List<ShadowHeater> ShadowHeaters = new List<ShadowHeater>();
 
         public void LoadData(WarmingWallsProxy dataToLoad)
@@ -31,8 +32,9 @@ namespace CoolHome
             return dataToSave;
         }
 
-        public void Heat(float heat)
+        public void Heat(float rawHeat)
         {
+            float heat = rawHeat * CoolHome.settings.HeatGainCoefficient;
             if (Profile is null) return;
             TimeOfDay tod = GameManager.GetTimeOfDayComponent();
             float numSecondsDelta = tod.GetTODSeconds(Time.deltaTime);
@@ -41,17 +43,30 @@ namespace CoolHome
 
         public void HeatLoss()
         {
-            if (StoredHeat == 0 || Profile is null) return;
+            if (Profile is null) return;
             TimeOfDay tod = GameManager.GetTimeOfDayComponent();
+
             float deltaTemperature = this.GetDeltaTemperature();
+            float insideTemperature = CoolHome.GetInsideTemperature();
+            float outsideTemperature = CoolHome.GetOutsideTemperature();
+            deltaTemperature += insideTemperature - outsideTemperature;
+
             float numSecondsDelta = tod.GetTODSeconds(Time.deltaTime);
             StoredHeat -= Profile.Material.Conductivity * Profile.Size.Square * deltaTemperature * numSecondsDelta;
 
             float windowLoss = tod.IsDay() ? InteriorSpaceConfig.WINDOW_LOSS_DAY : InteriorSpaceConfig.WINDOW_LOSS_NIGHT;
-            StoredHeat -= windowLoss * Profile.WindowSquare * deltaTemperature * numSecondsDelta;
+            StoredHeat -= windowLoss * Profile.WindowSquare * deltaTemperature * numSecondsDelta * CoolHome.settings.HeatLossCoefficient;
 
-            StoredHeat = Math.Max(StoredHeat, 0);
-            if (StoredHeat > 0 || CoolHome.spaceManager.HasRegisteredHeaters(this)) return;
+            if (StoredHeat > 1000 || CoolHome.spaceManager.HasRegisteredHeaters(this))
+            {
+                FramesToCull = 60;
+                return;
+            }
+            if (FramesToCull > 0)
+            {
+                FramesToCull -= 1;
+                return;
+            }
             CoolHome.spaceManager.RemoveIrrelevantSpace(this);
             Destroy(this.gameObject);
         }
@@ -67,18 +82,19 @@ namespace CoolHome
                 sh.Seconds -= numSecondsDelta;
                 if (sh.Seconds < 0)
                 {
-                    if (sh.Type == "FIRE") CoolHome.spaceManager.UnregisterFire(sh.PDID);
+                    if (sh.Type == "FIRE") CoolHome.spaceManager.UnregisterHeater(sh.PDID);
                     ShadowHeaters.Remove(sh);
                 }
             }
             if (totalHeatPower > 0) Heat(totalHeatPower);
 
-            this.HeatLoss();
+            HeatLoss();
         }
 
         public float GetDeltaTemperature()
         {
             if (Profile is null) return 0;
+            if (StoredHeat < 0) return 0;
             return (float)(StoredHeat / (Profile.GetMass() * Profile.Material.HeatCapacity * 1000));
         }
 

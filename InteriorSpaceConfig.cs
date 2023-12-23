@@ -39,6 +39,7 @@
         public static WallMaterial CONCRETE = new WallMaterial(1.51f, 2.00f, 0.88f);
         public static WallMaterial STEEL    = new WallMaterial(15f,   7.80f, 0.47f);
         public static WallMaterial GRANITE  = new WallMaterial(2.4f,  2.60f, 0.79f);
+        public static WallMaterial BRICK    = new WallMaterial(0.4f,  1.35f, 0.80f);
 
         public static float WINDOW_LOSS_NIGHT = 3f;
         public static float WINDOW_LOSS_DAY = 1.5f;
@@ -51,6 +52,8 @@
 
         public float WindowSquare = 6.8f;
 
+        public float DeltaTemperature = 0f;
+
         public float GetMass()
         {
             return Material.Density * 1000 * Size.Volume;
@@ -62,6 +65,7 @@
             else if (MaterialTag == "CONCRETE") Material = CONCRETE;
             else if (MaterialTag == "STEEL") Material = STEEL;
             else if (MaterialTag == "GRANITE") Material = GRANITE;
+            else if (MaterialTag == "BRICK") Material = BRICK;
 
             if (SizeTag == "SMALL") Size = SMALL;
             else if (SizeTag == "MEDIUM") Size = MEDIUM;

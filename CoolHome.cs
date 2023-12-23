@@ -7,7 +7,8 @@ using Il2Cpp;
 using MelonLoader.Utils;
 using MelonLoader.TinyJSON;
 using HarmonyLib;
-using UnityEngine.Analytics;
+using ModSettings;
+using CoolHome.Utilities;
 
 namespace CoolHome
 {
@@ -17,9 +18,11 @@ namespace CoolHome
 
         public static readonly string MODS_FOLDER_PATH = Path.Combine(MelonEnvironment.ModsDirectory, "CoolHome");
         internal static SaveManager saveManager = new SaveManager();
+        internal static Settings settings = new Settings();
 
         public override void OnInitializeMelon()
 		{           
+            settings.AddToModSettings("Cool Home");
 			MelonLogger.Msg("Mod started!");
         }
 
@@ -77,13 +80,25 @@ namespace CoolHome
             }
         }
 
+        public static float GetInsideTemperature()
+        {
+            TimeOfDay tod = GameManager.GetTimeOfDayComponent();
+            Weather w = GameManager.GetWeatherComponent();
+            ExperienceModeManager emm = GameManager.GetExperienceModeManagerComponent();
+
+            WarmingWalls? ww = spaceManager.GetCurrentSpace();
+            float DeltaTemperature = ww is not null && ww.Profile is not null ? ww.Profile.DeltaTemperature : 0;
+
+            return w.m_BaseTemperature + emm.GetOutdoorTempDropCelcius(tod.GetDayNumber()) + DeltaTemperature;
+        }
+
         public static float GetOutsideTemperature()
         {
             TimeOfDay tod = GameManager.GetTimeOfDayComponent();
             Weather w = GameManager.GetWeatherComponent();
             ExperienceModeManager emm = GameManager.GetExperienceModeManagerComponent();
 
-            return w.m_BaseTemperature + emm.GetOutdoorTempDropCelcius(tod.GetDayNumber());
+            return w.m_BaseTemperature + emm.GetOutdoorTempDropCelcius(tod.GetDayNumber()) + w.m_CurrentBlizzardDegreesDrop + w.m_CurrentWindChill;
         }
     }
 }
