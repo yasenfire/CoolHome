@@ -52,6 +52,7 @@ namespace CoolHome
             deltaTemperature += insideTemperature - outsideTemperature;
 
             float numSecondsDelta = tod.GetTODSeconds(Time.deltaTime);
+            StoredHeat -= 10 * numSecondsDelta;
             StoredHeat -= Profile.Material.Conductivity * Profile.Size.Square * deltaTemperature * numSecondsDelta;
 
             float windowLoss = tod.IsDay() ? InteriorSpaceConfig.WINDOW_LOSS_DAY : InteriorSpaceConfig.WINDOW_LOSS_NIGHT;
@@ -82,7 +83,7 @@ namespace CoolHome
                 sh.Seconds -= numSecondsDelta;
                 if (sh.Seconds < 0)
                 {
-                    if (sh.Type == "FIRE") CoolHome.spaceManager.UnregisterHeater(sh.PDID);
+                    CoolHome.spaceManager.UnregisterHeater(sh.PDID);
                     ShadowHeaters.Remove(sh);
                 }
             }
