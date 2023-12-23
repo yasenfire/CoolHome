@@ -36,11 +36,12 @@ As every shelter requires specific metadata for temperature calculations to work
 
 ## Useful Mod Combo
 
-* Extreme Drop Temperature by The Illusion to change temperature drop.
+* Extreme Drop Temperature by The Illusion to make nights even colder.
 * Cozy Blankets by Jods and Cozy Cushions by DZ. Is this mod too cool for you? Sit down on one of these cushions to get additional warmth.
-* Bedroll Tweaker (Cass) to stack temperature bonus.
+* Bedroll Tweaker by Cass to stack temperature bonus from bedrolls.
 * Solstice by WulfMarius and Romain. What can be worse than nights getting colder with each update? Nights getting longer!
-* FireRV by Deus. Thermodynamics is your friend. (No, no, it really isn't, not at all. No)
+* FireRV by Deus. Thermodynamics is your friend. (No, no, it really isn't, not at all. No) Use it with temperature-based heat generation
+* Indoor Campfire by Xpazeman. Can be the only way to make some places warm.
 
 ## Special Thanks
 The Long Dark Modding Server (discord)
