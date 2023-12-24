@@ -38,7 +38,7 @@ As every shelter requires specific metadata for temperature calculations to work
 - There is a small test set of profiles, their purpose is to add some individuality to shelters by making them behave differently. The folder should be placed in Mods/, same principle as in AmbientLights. The set is very short now: besides Camp Office it includes Trapper's Homestead, Forestry Lookout (small wooden buildings) and three small granite caves in Mystery Lake. More will be added soon.
 
 ## Installation
-* Move a **.dll** file in the downloaded ZIP to the Mods folder. Move **CoolHome** folder to the Mods folder.
+* Move **CoolHome.dll** and **CoolHome.json** in the downloaded ZIP to the Mods folder. Move **CoolHome** folder to the Mods folder.
 
 ## Useful Mod Combo
 
