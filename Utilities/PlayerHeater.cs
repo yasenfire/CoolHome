@@ -15,7 +15,7 @@ namespace CoolHome.Utilities
             WarmingWalls? ww = CoolHome.spaceManager.GetCurrentSpace();
             if (ww is null) ww = CoolHome.spaceManager.CreateNewSpace();
 
-            float Heat = 100;
+            float Heat = HeatSourceControl.PLAYER_POWER;
 
             PlayerManager pm = GameManager.GetPlayerManagerComponent();
             GearItem? gi = pm.m_ItemInHands;
@@ -24,26 +24,26 @@ namespace CoolHome.Utilities
                 if (gi.m_FlareItem is not null)
                 {
                     FlareItem fi = gi.m_FlareItem;
-                    if (fi.IsBurning()) Heat += 1000;
+                    if (fi.IsBurning()) Heat += HeatSourceControl.FLARE_POWER;
                 } 
                 else if (gi.m_KeroseneLampItem is not null)
                 {
                     KeroseneLampItem kli = gi.m_KeroseneLampItem;
-                    if (kli.IsOn()) Heat += 400;
+                    if (kli.IsOn()) Heat += HeatSourceControl.LAMP_POWER;
                 }
                 else if (gi.m_TorchItem is not null)
                 {
                     TorchItem ti = gi.m_TorchItem;
-                    if (ti.IsBurning()) Heat += 800;
+                    if (ti.IsBurning()) Heat += HeatSourceControl.TORCH_POWER;
                 }
                 else if (gi.m_MatchesItem is not null)
                 {
                     MatchesItem mi = gi.m_MatchesItem;
-                    if (mi.IsBurning()) Heat += 60;
+                    if (mi.IsBurning()) Heat += HeatSourceControl.MATCH_POWER;
                 }
             }
 
-            ww.Heat(Heat);
+            if (ww is not null) ww.Heat(Heat);
         }
     }
 }

@@ -146,7 +146,7 @@ namespace CoolHome
             {
                 if (f.GetRemainingLifeTimeSeconds() < 1) continue;
                 string pdid = f.GetComponent<ObjectGuid>().PDID;
-                ww.AddShadowHeater("FIRE", pdid, 3000, f.GetRemainingLifeTimeSeconds());
+                ww.AddShadowHeater("FIRE", pdid, HeatSourceControl.FIRE_POWER, f.GetRemainingLifeTimeSeconds());
             }
 
             FlareItem[] allFlares = GameObject.FindObjectsOfType<FlareItem>();
@@ -155,7 +155,7 @@ namespace CoolHome
                 if (!flare.IsBurning()) continue;
                 if (itemInHands is not null && itemInHands == flare.m_GearItem) continue;
                 string id = GetGearItemId(flare.m_GearItem);
-                ww.AddShadowHeater("FLARE", id, 1000, flare.GetNormalizedBurnTimeLeft() * flare.GetModifiedBurnLifetimeMinutes() * 60);
+                ww.AddShadowHeater("FLARE", id, HeatSourceControl.FLARE_POWER, flare.GetNormalizedBurnTimeLeft() * flare.GetModifiedBurnLifetimeMinutes() * 60);
             }
 
             TorchItem[] allTorches = GameObject.FindObjectsOfType<TorchItem>();
@@ -164,7 +164,7 @@ namespace CoolHome
                 if (!torch.IsBurning()) continue;
                 if (itemInHands is not null && itemInHands == torch.m_GearItem) continue;
                 string id = GetGearItemId(torch.m_GearItem);
-                ww.AddShadowHeater("TORCH", id, 800, (1 - torch.GetBurnProgress()) * torch.GetModifiedBurnLifetimeMinutes() * 60);
+                ww.AddShadowHeater("TORCH", id, HeatSourceControl.TORCH_POWER, (1 - torch.GetBurnProgress()) * torch.GetModifiedBurnLifetimeMinutes() * 60);
             }
 
             KeroseneLampItem[] allLamps = GameObject.FindObjectsOfType<KeroseneLampItem>();
@@ -173,7 +173,7 @@ namespace CoolHome
                 if (!lamp.IsOn()) continue;
                 if (itemInHands is not null && itemInHands == lamp.m_GearItem) continue;
                 string id = GetGearItemId(lamp.m_GearItem);
-                ww.AddShadowHeater("LAMP", id, 400, (lamp.m_CurrentFuelLiters / lamp.GetModifiedFuelBurnLitersPerHour()) * 3600);
+                ww.AddShadowHeater("LAMP", id, HeatSourceControl.LAMP_POWER, (lamp.m_CurrentFuelLiters / lamp.GetModifiedFuelBurnLitersPerHour()) * 3600);
             }
 
             CurrentSpace = null;
@@ -240,28 +240,28 @@ namespace CoolHome
                     Fire f = firesPresent[entry.Key];
                     if (f.GetRemainingLifeTimeSeconds() < 1) continue;
                     string pdid = f.GetComponent<ObjectGuid>().PDID;
-                    entry.Value.AddShadowHeater("FIRE", pdid, 3000, f.GetRemainingLifeTimeSeconds());
+                    entry.Value.AddShadowHeater("FIRE", pdid, HeatSourceControl.FIRE_POWER, f.GetRemainingLifeTimeSeconds());
                     continue;
                 }
                 if (flaresPresent.ContainsKey(entry.Key))
                 {
                     FlareItem flare = flaresPresent[entry.Key];
                     if (itemInHands is not null && itemInHands == flare.m_GearItem) continue;
-                    entry.Value.AddShadowHeater("FLARE", GetGearItemId(flare.m_GearItem), 1000, flare.GetNormalizedBurnTimeLeft() * flare.GetModifiedBurnLifetimeMinutes() * 60);
+                    entry.Value.AddShadowHeater("FLARE", GetGearItemId(flare.m_GearItem), HeatSourceControl.FLARE_POWER, flare.GetNormalizedBurnTimeLeft() * flare.GetModifiedBurnLifetimeMinutes() * 60);
                     continue;
                 }
                 if (torchesPresent.ContainsKey(entry.Key))
                 {
                     TorchItem torch = torchesPresent[entry.Key];
                     if (itemInHands is not null && itemInHands == torch.m_GearItem) continue;
-                    entry.Value.AddShadowHeater("TORCH", GetGearItemId(torch.m_GearItem), 800, (1 - torch.GetBurnProgress()) * torch.GetModifiedBurnLifetimeMinutes() * 60);
+                    entry.Value.AddShadowHeater("TORCH", GetGearItemId(torch.m_GearItem), HeatSourceControl.TORCH_POWER, (1 - torch.GetBurnProgress()) * torch.GetModifiedBurnLifetimeMinutes() * 60);
                     continue;
                 }
                 if (lampsPresent.ContainsKey(entry.Key))
                 {
                     KeroseneLampItem lamp = lampsPresent[entry.Key];
                     if (itemInHands is not null && itemInHands == lamp.m_GearItem) continue;
-                    entry.Value.AddShadowHeater("LAMP", GetGearItemId(lamp.m_GearItem), 400, (lamp.m_CurrentFuelLiters / lamp.GetModifiedFuelBurnLitersPerHour()) * 3600);
+                    entry.Value.AddShadowHeater("LAMP", GetGearItemId(lamp.m_GearItem), HeatSourceControl.LAMP_POWER, (lamp.m_CurrentFuelLiters / lamp.GetModifiedFuelBurnLitersPerHour()) * 3600);
                 }
             }
         }
@@ -536,12 +536,12 @@ namespace CoolHome
 
                 if (CoolHome.settings.UseTemperatureBasedFires)
                 {
-                    float power = 1000 * __instance.m_TempIncrease / 3;
+                    float power = HeatSourceControl.FIRE_TEMP_POWER_PER_C * __instance.m_TempIncrease;
                     ww.Heat(power);
                 } else
                 {
                     float powerCoefficient = __instance.m_TempIncrease / __instance.m_MaxTempIncrease;
-                    float power = 3000;
+                    float power = HeatSourceControl.FIRE_POWER;
                     ww.Heat(power * powerCoefficient);
                 }
             }

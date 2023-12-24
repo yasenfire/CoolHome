@@ -2,7 +2,7 @@
 
 namespace CoolHome.Utilities
 {
-    internal class Settings : ModSettingsBase
+    internal class Settings : JsonModSettings
     {
         [Name("Heat Gain Coefficient")]
         [Description("The higher it is the more effective heat sources will be")]

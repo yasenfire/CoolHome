@@ -21,8 +21,8 @@ namespace CoolHome
         internal static Settings settings = new Settings();
 
         public override void OnInitializeMelon()
-		{           
-            settings.AddToModSettings("Cool Home");
+		{
+            settings.AddToModSettings("CoolHome");
 			MelonLogger.Msg("Mod started!");
         }
 

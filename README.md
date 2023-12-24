@@ -13,6 +13,12 @@ This mod removes all (or almost all) temperature bonuses from being inside. Ever
 
 As every shelter requires specific metadata for temperature calculations to work correctly, not everything is supported yet. Unsupported buildings will behave like Camp Office in Mystery Lake temperature-wise. Updates are coming!
 
+### Update v0.2.2
+
+- Storm lantern heat is changed to more scientifically correct 1.5KW. Days will be warmer.
+- Fixed the bug that was crashing the game when entering some buildings.
+- ModSettings should work correctly now.
+
 ### Update v0.2.0
 
 - Blizzard and windchill temperature changes now don't apply to inside, instead they influence shelters' heat loss. Nights will be colder.
