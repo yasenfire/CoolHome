@@ -13,7 +13,9 @@ namespace CoolHome
             {
                 WarmingWalls? ww = CoolHome.spaceManager.GetCurrentSpace();
                 float deltaTemperature = ww is null ? 0 : ww.GetDeltaTemperature();
-                __instance.m_IndoorTemperatureCelsius = CoolHome.GetInsideTemperature() + deltaTemperature;
+                float newTemperature = CoolHome.GetInsideTemperature() + deltaTemperature;
+                __instance.m_IndoorTemperatureCelsius = newTemperature;
+                GameManager.GetPlayerInVehicle().m_TempIncrease = deltaTemperature;
             }
         }
     }

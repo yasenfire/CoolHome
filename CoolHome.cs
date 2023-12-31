@@ -9,6 +9,8 @@ using MelonLoader.TinyJSON;
 using HarmonyLib;
 using ModSettings;
 using CoolHome.Utilities;
+using UnityEngine.Events;
+using Il2CppTLD.Interactions;
 
 namespace CoolHome
 {
@@ -28,7 +30,11 @@ namespace CoolHome
 
         public override void OnSceneWasInitialized(int buildIndex, string sceneName)
         {
-            if (sceneName.ToLowerInvariant().Contains("menu") || sceneName.ToLowerInvariant().Contains("boot") || sceneName.ToLowerInvariant().Contains("empty"))
+            string sceneNameLower = sceneName.ToLowerInvariant();
+
+            if (sceneNameLower.Contains("empty")) return;
+
+            if (sceneNameLower.Contains("menu") || sceneNameLower.Contains("boot"))
             {
                 if (spaceManager.IsInitialized()) spaceManager.Deinit();
                 return;
@@ -71,12 +77,15 @@ namespace CoolHome
             {
                 data = JSON.Load(File.ReadAllText(Path.Combine(CoolHome.MODS_FOLDER_PATH, spaceFile))).Make<InteriorSpaceConfig>();
                 data.UpdateByTags();
+                data.TransferProperties();
                 return data;
             }
             else
             {
                 Melon<CoolHome>.Logger.Msg("No config found for " + spaceName + ". Using default");
-                return new InteriorSpaceConfig();
+                InteriorSpaceConfig defaultConfig = new InteriorSpaceConfig();
+                defaultConfig.TransferProperties();
+                return defaultConfig;
             }
         }
 

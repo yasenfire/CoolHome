@@ -13,6 +13,7 @@ namespace CoolHome
         static string ScriptName = "SCRIPT_Heating";
 
         string? CurrentSpace;
+        string? CurrentSpaceMeta;
         WarmingWalls? CurrentWalls;
         GameObject? Instance;
 
@@ -74,10 +75,10 @@ namespace CoolHome
             saveManager.SaveSpaceManager(dataToSave);
         }
 
-        [HarmonyPatch(typeof(Weather), nameof(Weather.Serialize))]
-        internal class WeatherSerializePatch
+        [HarmonyPatch(typeof(SaveGameSystem), nameof(SaveGameSystem.SaveSceneData))]
+        internal class SaveGamePatch
         {
-            static void Prefix()
+            static void Postfix()
             {
                 CoolHome.spaceManager.SaveData();
             }
@@ -228,7 +229,7 @@ namespace CoolHome
             foreach (IndoorSpaceTrigger ist in triggers)
             {
                 string name = GetIndoorSpaceName(ist);
-                WarmingWalls? ww = TrackedSpaces.ContainsKey(name) ? TrackedSpaces[name].GetComponent<WarmingWalls>() : null;
+                WarmingWalls? ww = TrackedSpaces.ContainsKey(name) && TrackedSpaces[name] is not null ? TrackedSpaces[name].GetComponent<WarmingWalls>() : null;
                 if (ww is not null) wallComponents.Add(ww);
             }
 
@@ -268,9 +269,14 @@ namespace CoolHome
 
         public string GetIndoorSpaceName(IndoorSpaceTrigger ist)
         {
-            GameObject go = ist.gameObject;
-            ObjectGuid id = go.GetComponent<ObjectGuid>();
+            ObjectGuid id = ist.GetComponent<ObjectGuid>();
             return id.PDID;
+        }
+
+        public string GetCarSpaceName(VehicleDoor door)
+        {
+            GameObject parent = door.transform.parent.gameObject;
+            return parent.transform.position.ToString();
         }
 
         public void EnterIndoorSpace(IndoorSpaceTrigger ist)
@@ -293,6 +299,7 @@ namespace CoolHome
         public void Leave()
         {
             CurrentSpace = null;
+            CurrentSpaceMeta = null;
             CurrentWalls = null;
         }
 
@@ -318,8 +325,9 @@ namespace CoolHome
             if (ww is not null)
             {
                 CurrentWalls = ww;
+                CurrentWalls.Name = CurrentSpace;
                 TrackedSpaces[CurrentSpace] = go;
-                ww.Profile = CoolHome.LoadSceneConfig(CurrentSpace);
+                ww.Profile = CoolHome.LoadSceneConfig(CurrentSpaceMeta is not null ? CurrentSpaceMeta : CurrentSpace);
             }
             return ww;
         }
@@ -331,16 +339,7 @@ namespace CoolHome
 
         public void RemoveIrrelevantSpace(WarmingWalls ww)
         {
-            if (CurrentWalls == ww)
-            {
-                CurrentSpace = null;
-                CurrentWalls = null;
-            }
-
-            foreach (string id in TrackedSpaces.Keys)
-            {
-                if (TrackedSpaces[id] == ww) TrackedSpaces.Remove(id);
-            }
+            TrackedSpaces.Remove(ww.Name);
         }
 
         static string GetFireId(GameObject fire)
@@ -586,6 +585,29 @@ namespace CoolHome
                 if (ww is null) return;
 
                 ww.Heat(400);
+            }
+        }
+
+        [HarmonyPatch(typeof(PlayerInVehicle), nameof(PlayerInVehicle.EnterVehicle))]
+        internal class PlayerInVehicleEnterPatch
+        {
+            static void Postfix(PlayerInVehicle __instance)
+            {
+                VehicleDoor door = __instance.m_VehicleDoorUsed;
+                string name = CoolHome.spaceManager.GetCarSpaceName(door);
+                CoolHome.spaceManager.CurrentSpace = name;
+                string parentName = door.transform.parent.gameObject.name.ToLowerInvariant();
+                if (parentName.Contains("plane")) CoolHome.spaceManager.CurrentSpaceMeta = "Plane";
+                else CoolHome.spaceManager.CurrentSpaceMeta = "Truck";
+            }
+        }
+
+        [HarmonyPatch(typeof(PlayerInVehicle), nameof(PlayerInVehicle.ExitVehicle))]
+        internal class PlayerInVehicleExitPatch
+        {
+            static void Postfix()
+            {
+                CoolHome.spaceManager.Leave();
             }
         }
     }

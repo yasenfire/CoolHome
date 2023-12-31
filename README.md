@@ -13,6 +13,14 @@ This mod removes all (or almost all) temperature bonuses from being inside. Ever
 
 As every shelter requires specific metadata for temperature calculations to work correctly, not everything is supported yet. Unsupported buildings will behave like Camp Office in Mystery Lake temperature-wise. Updates are coming!
 
+### Update v0.3.0 Cold Greeting
+
+- Wall heat loss is now counted in more physically correct way. Thermodynamics is not your friend. Nights will be colder.
+- In addition to wall heat loss there is also ventilation heat loss. Nights will be much colder.
+- Vehicles are now heatable. Only trucks and the broken plane in Mystery Lake are fully supported though, everything else will behave like trucks.
+- Thermic profiles now can override more properties, including wall material properties, size and ventilation dynamics. Caves will be warmer. Eventually. Not now.
+- Some more stability fixes.
+
 ### Update v0.2.2
 
 - Storm lantern heat is changed to more scientifically correct 1.5KW. Days will be warmer.

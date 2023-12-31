@@ -8,6 +8,10 @@ namespace CoolHome
     [RegisterTypeInIl2Cpp]
     class WarmingWalls : MonoBehaviour
     {
+        static float PRESSURE_PER_K = 37.24f;
+        static float HEIGHT_TEMP_PER_M = 0.115f;
+
+        public string Name = "";
         public InteriorSpaceConfig? Profile;
         public double StoredHeat;
 
@@ -16,6 +20,7 @@ namespace CoolHome
 
         public void LoadData(WarmingWallsProxy dataToLoad)
         {
+            Name = dataToLoad.Name;
             StoredHeat = dataToLoad.storedHeat;
             ShadowHeaters = dataToLoad.shadowHeaters;
             Profile = CoolHome.LoadSceneConfig(dataToLoad.ProfileName);
@@ -25,6 +30,7 @@ namespace CoolHome
             SaveManager sm = CoolHome.saveManager;
             WarmingWallsProxy? dataToSave = new WarmingWallsProxy();
 
+            dataToSave.Name = Name;
             dataToSave.storedHeat = StoredHeat;
             dataToSave.shadowHeaters = ShadowHeaters;
             dataToSave.ProfileName = Profile is null ? "default" : Profile.Name;
@@ -47,22 +53,45 @@ namespace CoolHome
             TimeOfDay tod = GameManager.GetTimeOfDayComponent();
 
             float deltaTemperature = this.GetDeltaTemperature();
-            float insideTemperature = CoolHome.GetInsideTemperature();
+            float insideTemperature = CoolHome.GetInsideTemperature() - Profile.DeltaTemperature;
             float outsideTemperature = CoolHome.GetOutsideTemperature();
             deltaTemperature += insideTemperature - outsideTemperature;
 
             float numSecondsDelta = tod.GetTODSeconds(Time.deltaTime);
+            
+            FabricHeatLoss(numSecondsDelta, deltaTemperature);
+            AirHeatLoss(numSecondsDelta, deltaTemperature);
+        }
+
+        public void FabricHeatLoss(float numSecondsDelta, float deltaTemperature)
+        {
+            if (Profile is null) return;
+            TimeOfDay tod = GameManager.GetTimeOfDayComponent();
             StoredHeat -= 10 * numSecondsDelta;
-            StoredHeat -= Profile.Material.Conductivity * Profile.Size.Square * deltaTemperature * numSecondsDelta;
+            StoredHeat -= Profile.GetUValue() * Profile.Square * deltaTemperature * numSecondsDelta;
 
             float windowLoss = tod.IsDay() ? InteriorSpaceConfig.WINDOW_LOSS_DAY : InteriorSpaceConfig.WINDOW_LOSS_NIGHT;
             StoredHeat -= windowLoss * Profile.WindowSquare * deltaTemperature * numSecondsDelta * CoolHome.settings.HeatLossCoefficient;
+        }
 
-            if (StoredHeat > 1000 || CoolHome.spaceManager.HasRegisteredHeaters(this))
+        public void AirHeatLoss(float numSecondsDelta, float deltaTemperature)
+        {
+            if (Profile is null) return;
+
+            float hoursPassed = numSecondsDelta / 3600;
+
+            double airToLeave = Profile.AirChangesPerHour * Profile.AirVolume * InteriorSpaceConfig.AIR.Density * hoursPassed;
+            StoredHeat -= airToLeave * InteriorSpaceConfig.AIR.HeatCapacity * deltaTemperature * CoolHome.settings.HeatLossCoefficient;
+        }
+
+        public void MaybeCull()
+        {
+            if (CoolHome.spaceManager.GetCurrentSpaceName() == Name || CoolHome.spaceManager.HasRegisteredHeaters(this) || StoredHeat > 1000)
             {
                 FramesToCull = 60;
                 return;
             }
+
             if (FramesToCull > 0)
             {
                 FramesToCull -= 1;
@@ -90,13 +119,14 @@ namespace CoolHome
             if (totalHeatPower > 0) Heat(totalHeatPower);
 
             HeatLoss();
+            MaybeCull();
         }
 
         public float GetDeltaTemperature()
         {
             if (Profile is null) return 0;
             if (StoredHeat < 0) return 0;
-            return (float)(StoredHeat / (Profile.GetMass() * Profile.Material.HeatCapacity * 1000));
+            return (float)(StoredHeat / (Profile.GetMass() * Profile.HeatCapacity * 1000));
         }
 
         public void AddShadowHeater(string type, string pdid, float power, float seconds)

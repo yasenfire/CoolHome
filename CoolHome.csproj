@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
     <!--This is an xml comment. Comments have no impact on compiling.-->
 
     <PropertyGroup>
@@ -44,9 +44,23 @@
             <Private>False</Private>
         </Reference>
     </ItemDefinitionGroup>
+    <ItemGroup>
+      <None Remove="CoolHome.json" />
+    </ItemGroup>
+    <ItemGroup>
+      <Content Include="CoolHome.json">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+    </ItemGroup>
 
     <ItemGroup>
         <PackageReference Include="STBlade.Modding.TLD.ModData" Version="1.5.1" />
+    </ItemGroup>
+	
+	<ItemGroup>
+        <Content Include="CoolHome\**">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
     </ItemGroup>
 
     <!--This is the list of assemblies that the mod references. Most of these are unnecessary for normal mods, but are included here for completeness.-->

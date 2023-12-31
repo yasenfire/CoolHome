@@ -6,7 +6,7 @@ namespace CoolHome
 {
     internal class SaveManager
     {
-        ModDataManager dm = new ModDataManager("CoolHome", false);
+        ModDataManager dm = new ModDataManager("CoolHome", true);
 
         public void SaveSpaceManager(InteriorSpaceManagerProxy sm)
         {
