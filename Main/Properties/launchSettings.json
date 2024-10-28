@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "CoolHome": {
+      "commandName": "Project",
+      "hotReloadEnabled": false
+    }
+  }
+}

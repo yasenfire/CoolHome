@@ -13,6 +13,17 @@ This mod removes all (or almost all) temperature bonuses from being inside. Ever
 
 As every shelter requires specific metadata for temperature calculations to work correctly, not everything is supported yet. Unsupported buildings will behave like Camp Office in Mystery Lake temperature-wise. Updates are coming!
 
+### Update v0.4.0 Not Cool
+
+The temporary version, mainly published to restore functionality for the actual TLD version. However, there are still new features:
+
+- Electric devices generate heat during aurora. Lamps and computers will make your home warmer a bit (even if you destroy them. Don't!)
+- Additional option to enable in mod settings adds invisible electric heating devices powered during aurora in some large industrial buildings (The Dam for now).
+- Medium, large and colossal buildings made smaller (in heat calculations) than they really should be, but their behavior in-game makes slightly more sense that way.
+- I like mods, so I decided to put mods in my mod. For now there's just a little compatibility mod between CoolHome and CandleLight, but probably there will be more.
+
+All in all, it's very raw and only a plug till some real work is done. Sorry for the quality, sorry for the delay.
+
 ### Update v0.3.0 Cold Greeting
 
 - Wall heat loss is now counted in more physically correct way. Thermodynamics is not your friend. Nights will be colder.
