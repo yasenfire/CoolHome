@@ -1,5 +1,7 @@
 bin/*
 obj/*
+Main/obj/*
+CoolHomeCandlelight/obj/*
 .vs/*
 Properties/launchSettings*
 CoolHome.dll
