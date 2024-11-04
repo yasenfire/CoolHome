@@ -151,6 +151,7 @@ namespace CoolHome
             Fire[] allFires = GameObject.FindObjectsOfType<Fire>();
             foreach (Fire f in allFires)
             {
+                if (f is null) continue;
                 if (f.GetRemainingLifeTimeSeconds() < 1) continue;
                 string pdid = f.GetComponent<ObjectGuid>().PDID;
                 ww.AddShadowHeater("FIRE", pdid, HeatSourceControl.FIRE_POWER, f.GetRemainingLifeTimeSeconds());
@@ -159,6 +160,7 @@ namespace CoolHome
             FlareItem[] allFlares = GameObject.FindObjectsOfType<FlareItem>();
             foreach (FlareItem flare in allFlares)
             {
+                if (flare is null) continue;
                 if (!flare.IsBurning()) continue;
                 if (itemInHands is not null && itemInHands == flare.m_GearItem) continue;
                 string id = GetGearItemId(flare.m_GearItem);
@@ -168,6 +170,7 @@ namespace CoolHome
             TorchItem[] allTorches = GameObject.FindObjectsOfType<TorchItem>();
             foreach (TorchItem torch in allTorches)
             {
+                if (torch is null) continue;
                 if (!torch.IsBurning()) continue;
                 if (itemInHands is not null && itemInHands == torch.m_GearItem) continue;
                 string id = GetGearItemId(torch.m_GearItem);
@@ -177,6 +180,7 @@ namespace CoolHome
             KeroseneLampItem[] allLamps = GameObject.FindObjectsOfType<KeroseneLampItem>();
             foreach (KeroseneLampItem lamp in allLamps)
             {
+                if (lamp is null) continue;
                 if (!lamp.IsOn()) continue;
                 if (itemInHands is not null && itemInHands == lamp.m_GearItem) continue;
                 string id = GetGearItemId(lamp.m_GearItem);
@@ -208,6 +212,7 @@ namespace CoolHome
             Fire[] allFires = GameObject.FindObjectsOfType<Fire>();
             foreach (Fire f in allFires)
             {
+                if (f is null) continue;
                 firesPresent[GetFireId(f.gameObject)] = f;
             }
 
@@ -215,6 +220,7 @@ namespace CoolHome
             FlareItem[] allFlares = GameObject.FindObjectsOfType<FlareItem>();
             foreach (FlareItem flare in allFlares)
             {
+                if (flare is null) continue;
                 flaresPresent[GetGearItemId(flare.m_GearItem)] = flare;
             }
 
@@ -222,6 +228,7 @@ namespace CoolHome
             TorchItem[] allTorches = GameObject.FindObjectsOfType<TorchItem>();
             foreach (TorchItem torch in allTorches)
             {
+                if (torch is null) continue;
                 torchesPresent[GetGearItemId(torch.m_GearItem)] = torch;
             }
 
@@ -229,6 +236,7 @@ namespace CoolHome
             KeroseneLampItem[] allLamps = GameObject.FindObjectsOfType<KeroseneLampItem>();
             foreach (KeroseneLampItem lamp in allLamps)
             {
+                if (lamp is null) continue;
                 lampsPresent[GetGearItemId(lamp.m_GearItem)] = lamp;
             }
 

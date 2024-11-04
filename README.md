@@ -13,6 +13,10 @@ This mod removes all (or almost all) temperature bonuses from being inside. Ever
 
 As every shelter requires specific metadata for temperature calculations to work correctly, not everything is supported yet. Unsupported buildings will behave like Camp Office in Mystery Lake temperature-wise. Updates are coming!
 
+### Update v0.4.2
+
+- Preventing some possible crashes
+
 ### Update v0.4.1
 
 - Correct version of CoolHomeCandlelight in the release
@@ -62,6 +66,7 @@ All in all, it's very raw and only a plug till some real work is done. Sorry for
 
 ## Installation
 * Move **CoolHome.dll** and **CoolHome.json** in the downloaded ZIP to the Mods folder. Move **CoolHome** folder to the Mods folder.
+* If you have Candlelight installed, move **CoolHomeCandlelight.dll** to the Mods folder.
 
 ## Useful Mod Combo
 
