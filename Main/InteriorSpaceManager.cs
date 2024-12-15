@@ -4,6 +4,7 @@ using MelonLoader;
 using HarmonyLib;
 using System.Collections;
 using UnityEngine;
+using Il2CppTLD.Placement;
 using Il2CppTLD.Gear;
 
 namespace CoolHome
@@ -193,8 +194,8 @@ namespace CoolHome
 
         public void EnterOutdoorScene()
         {
-            IndoorSpaceTrigger[] triggers = GameObject.FindObjectsOfType<IndoorSpaceTrigger>();
-            foreach (IndoorSpaceTrigger ist in triggers)
+            InteriorTemperatureTrigger[] triggers = GameObject.FindObjectsOfType<InteriorTemperatureTrigger>();
+            foreach (InteriorTemperatureTrigger ist in triggers)
             {
                 string name = GetIndoorSpaceName(ist);
                 if (TrackedSpaces.ContainsKey(name)) TrackedSpaces[name].GetComponent<WarmingWalls>().RemoveShadowHeaters();
@@ -203,7 +204,7 @@ namespace CoolHome
 
         public void LeaveOutdoorScene()
         {
-            IndoorSpaceTrigger[] triggers = GameObject.FindObjectsOfType<IndoorSpaceTrigger>();
+            InteriorTemperatureTrigger[] triggers = GameObject.FindObjectsOfType<InteriorTemperatureTrigger>();
             List<WarmingWalls> wallComponents = new List<WarmingWalls>();
 
             GearItem? itemInHands = GameManager.GetPlayerManagerComponent().m_ItemInHands;
@@ -240,7 +241,7 @@ namespace CoolHome
                 lampsPresent[GetGearItemId(lamp.m_GearItem)] = lamp;
             }
 
-            foreach (IndoorSpaceTrigger ist in triggers)
+            foreach (InteriorTemperatureTrigger ist in triggers)
             {
                 string name = GetIndoorSpaceName(ist);
                 WarmingWalls? ww = TrackedSpaces.ContainsKey(name) && TrackedSpaces[name] is not null ? TrackedSpaces[name].GetComponent<WarmingWalls>() : null;
@@ -284,7 +285,7 @@ namespace CoolHome
             CurrentWalls = null;
         }
 
-        public string GetIndoorSpaceName(IndoorSpaceTrigger ist)
+        public string GetIndoorSpaceName(InteriorTemperatureTrigger ist)
         {
             ObjectGuid id = ist.GetComponent<ObjectGuid>();
             return id.PDID;
@@ -296,19 +297,19 @@ namespace CoolHome
             return parent.transform.position.ToString();
         }
 
-        public void EnterIndoorSpace(IndoorSpaceTrigger ist)
+        public void EnterIndoorSpace(InteriorTemperatureTrigger ist)
         {
             string name = GetIndoorSpaceName(ist);
             CurrentSpace = name;
             Melon<CoolHome>.Logger.Msg("Entering space named " + name);
         }
 
-        [HarmonyPatch(typeof(IndoorSpaceTrigger), nameof(IndoorSpaceTrigger.OnTriggerEnter))]
-        internal class IndoorSpaceTriggerOnEnterPatch
+        [HarmonyPatch(typeof(InteriorTemperatureTrigger), nameof(InteriorTemperatureTrigger.OnTriggerEnter))]
+        internal class InteriorTemperatureTriggerOnEnterPatch
         {
-            static void Postfix(IndoorSpaceTrigger __instance)
+            static void Postfix(InteriorTemperatureTrigger __instance)
             {
-                __instance.m_UseOutdoorTemperature = false;
+                __instance.m_Temperature = CoolHome.GetInsideTemperature();
                 CoolHome.spaceManager.EnterIndoorSpace(__instance);
             }
         }
@@ -320,10 +321,10 @@ namespace CoolHome
             CurrentWalls = null;
         }
 
-        [HarmonyPatch(typeof(IndoorSpaceTrigger), nameof(IndoorSpaceTrigger.OnTriggerExit))]
-        internal class IndoorSpaceTriggerOnExitPatch
+        [HarmonyPatch(typeof(InteriorTemperatureTrigger), nameof(InteriorTemperatureTrigger.OnTriggerExit))]
+        internal class InteriorTemperatureTriggerOnExitPatch
         {
-            static void Postfix(IndoorSpaceTrigger __instance)
+            static void Postfix(InteriorTemperatureTrigger __instance)
             {
                 CoolHome.spaceManager.Leave();
             }
@@ -480,7 +481,7 @@ namespace CoolHome
 
         public GameObject? ObjectToPlace;
 
-        [HarmonyPatch(typeof(PlayerManager), nameof(PlayerManager.StartPlaceMesh), new Type[] { typeof(GameObject), typeof(float), typeof(PlaceMeshFlags) })]
+        [HarmonyPatch(typeof(PlayerManager), nameof(PlayerManager.StartPlaceMesh), new Type[] { typeof(GameObject), typeof(float), typeof(PlaceMeshFlags), typeof(PlaceMeshRules) })]
         internal class RememberObjectToPlacePatch
         {
             static void Postfix(GameObject objectToPlace)

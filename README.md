@@ -13,6 +13,10 @@ This mod removes all (or almost all) temperature bonuses from being inside. Ever
 
 As every shelter requires specific metadata for temperature calculations to work correctly, not everything is supported yet. Unsupported buildings will behave like Camp Office in Mystery Lake temperature-wise. Updates are coming!
 
+### Update v0.4.3
+
+- Updated to the TLD2.35
+
 ### Update v0.4.2
 
 - Preventing some possible crashes
@@ -21,7 +25,7 @@ As every shelter requires specific metadata for temperature calculations to work
 
 - Correct version of CoolHomeCandlelight in the release
 
-### Update v0.4.0 Not Cool
+### Update v0.4.0
 
 The temporary version, mainly published to restore functionality for the actual TLD version. However, there are still new features:
 
@@ -32,7 +36,7 @@ The temporary version, mainly published to restore functionality for the actual 
 
 All in all, it's very raw and only a plug till some real work is done. Sorry for the quality, sorry for the delay.
 
-### Update v0.3.0 Cold Greeting
+### Update v0.3.0
 
 - Wall heat loss is now counted in more physically correct way. Thermodynamics is not your friend. Nights will be colder.
 - In addition to wall heat loss there is also ventilation heat loss. Nights will be much colder.

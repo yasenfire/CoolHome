@@ -57,10 +57,6 @@
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </Content>
     </ItemGroup>
-
-    <ItemGroup>
-        <PackageReference Include="STBlade.Modding.TLD.Il2CppAssemblies.Windows" Version="2.32.0" />
-    </ItemGroup>
 	
 	<ItemGroup>
         <Content Include="CoolHome/**">
@@ -70,6 +66,9 @@
 
     <!--This is the list of assemblies that the mod references. Most of these are unnecessary for normal mods, but are included here for completeness.-->
     <ItemGroup>
+		<Reference Include="Assembly-CSharp">
+		  <HintPath>$(Il2CppPath)\Assembly-CSharp.dll</HintPath>
+		</Reference>
 		<Reference Include="Il2CppInterop.Common">
 			<HintPath>$(MelonLoaderPath)\Il2CppInterop.Common.dll</HintPath>
 		</Reference>
@@ -81,7 +80,6 @@
 		</Reference>
 		<Reference Include="MelonLoader" />
 		<Reference Include="0Harmony" />
-		<Reference Include="Assembly-CSharp" />
 		<Reference Include="Il2CppHOTween" />
 		<Reference Include="Il2Cppmscorlib" />
 		<Reference Include="Il2CppNewtonsoft.Json" />
