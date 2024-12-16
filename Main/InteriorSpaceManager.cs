@@ -194,8 +194,8 @@ namespace CoolHome
 
         public void EnterOutdoorScene()
         {
-            InteriorTemperatureTrigger[] triggers = GameObject.FindObjectsOfType<InteriorTemperatureTrigger>();
-            foreach (InteriorTemperatureTrigger ist in triggers)
+            IndoorSpaceTrigger[] triggers = GameObject.FindObjectsOfType<IndoorSpaceTrigger>();
+            foreach (IndoorSpaceTrigger ist in triggers)
             {
                 string name = GetIndoorSpaceName(ist);
                 if (TrackedSpaces.ContainsKey(name)) TrackedSpaces[name].GetComponent<WarmingWalls>().RemoveShadowHeaters();
@@ -204,7 +204,7 @@ namespace CoolHome
 
         public void LeaveOutdoorScene()
         {
-            InteriorTemperatureTrigger[] triggers = GameObject.FindObjectsOfType<InteriorTemperatureTrigger>();
+            IndoorSpaceTrigger[] triggers = GameObject.FindObjectsOfType<IndoorSpaceTrigger>();
             List<WarmingWalls> wallComponents = new List<WarmingWalls>();
 
             GearItem? itemInHands = GameManager.GetPlayerManagerComponent().m_ItemInHands;
@@ -241,7 +241,7 @@ namespace CoolHome
                 lampsPresent[GetGearItemId(lamp.m_GearItem)] = lamp;
             }
 
-            foreach (InteriorTemperatureTrigger ist in triggers)
+            foreach (IndoorSpaceTrigger ist in triggers)
             {
                 string name = GetIndoorSpaceName(ist);
                 WarmingWalls? ww = TrackedSpaces.ContainsKey(name) && TrackedSpaces[name] is not null ? TrackedSpaces[name].GetComponent<WarmingWalls>() : null;
@@ -285,7 +285,7 @@ namespace CoolHome
             CurrentWalls = null;
         }
 
-        public string GetIndoorSpaceName(InteriorTemperatureTrigger ist)
+        public string GetIndoorSpaceName(IndoorSpaceTrigger ist)
         {
             ObjectGuid id = ist.GetComponent<ObjectGuid>();
             return id.PDID;
@@ -297,19 +297,19 @@ namespace CoolHome
             return parent.transform.position.ToString();
         }
 
-        public void EnterIndoorSpace(InteriorTemperatureTrigger ist)
+        public void EnterIndoorSpace(IndoorSpaceTrigger ist)
         {
             string name = GetIndoorSpaceName(ist);
             CurrentSpace = name;
             Melon<CoolHome>.Logger.Msg("Entering space named " + name);
         }
 
-        [HarmonyPatch(typeof(InteriorTemperatureTrigger), nameof(InteriorTemperatureTrigger.OnTriggerEnter))]
-        internal class InteriorTemperatureTriggerOnEnterPatch
+        [HarmonyPatch(typeof(IndoorSpaceTrigger), nameof(IndoorSpaceTrigger.OnTriggerEnter))]
+        internal class IndoorSpaceTriggerOnEnterPatch
         {
-            static void Postfix(InteriorTemperatureTrigger __instance)
+            static void Postfix(IndoorSpaceTrigger __instance)
             {
-                __instance.m_Temperature = CoolHome.GetInsideTemperature();
+                __instance.m_UseOutdoorTemperature = false;
                 CoolHome.spaceManager.EnterIndoorSpace(__instance);
             }
         }
@@ -321,10 +321,10 @@ namespace CoolHome
             CurrentWalls = null;
         }
 
-        [HarmonyPatch(typeof(InteriorTemperatureTrigger), nameof(InteriorTemperatureTrigger.OnTriggerExit))]
-        internal class InteriorTemperatureTriggerOnExitPatch
+        [HarmonyPatch(typeof(IndoorSpaceTrigger), nameof(IndoorSpaceTrigger.OnTriggerExit))]
+        internal class IndoorSpaceTriggerOnExitPatch
         {
-            static void Postfix(InteriorTemperatureTrigger __instance)
+            static void Postfix(IndoorSpaceTrigger __instance)
             {
                 CoolHome.spaceManager.Leave();
             }
