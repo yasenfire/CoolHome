@@ -98,7 +98,7 @@ namespace CoolHome
             WarmingWalls? ww = spaceManager.GetCurrentSpace();
             float DeltaTemperature = ww is not null && ww.Profile is not null ? ww.Profile.DeltaTemperature : 0;
 
-            return w.m_BaseTemperature + emm.GetOutdoorTempDropCelcius(tod.GetDayNumber()) + DeltaTemperature;
+            return w.m_BaseTemperature + emm.GetOutdoorTempDropCelcius(tod.GetDayNumber()) * -1 + DeltaTemperature;
         }
 
         public static float GetOutsideTemperature()
@@ -107,7 +107,7 @@ namespace CoolHome
             Weather w = GameManager.GetWeatherComponent();
             ExperienceModeManager emm = GameManager.GetExperienceModeManagerComponent();
 
-            return w.m_BaseTemperature + emm.GetOutdoorTempDropCelcius(tod.GetDayNumber()) + w.m_CurrentBlizzardDegreesDrop + w.m_CurrentWindChill;
+            return w.m_BaseTemperature + emm.GetOutdoorTempDropCelcius(tod.GetDayNumber()) * -1 + w.m_CurrentBlizzardDegreesDrop + w.m_CurrentWindChill;
         }
     }
 }

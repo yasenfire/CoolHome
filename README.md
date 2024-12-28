@@ -13,6 +13,10 @@ This mod removes all (or almost all) temperature bonuses from being inside. Ever
 
 As every shelter requires specific metadata for temperature calculations to work correctly, not everything is supported yet. Unsupported buildings will behave like Camp Office in Mystery Lake temperature-wise. Updates are coming!
 
+### Update v0.4.5
+
+- Global Warming is replaced with Global Cooling, pre-2.35 saves should work correctly
+
 ### Update v0.4.3
 
 - Updated to the TLD2.35
