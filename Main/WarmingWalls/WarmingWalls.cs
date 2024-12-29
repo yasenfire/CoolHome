@@ -114,6 +114,9 @@ namespace CoolHome
             float totalHeatPower = 0;
             TimeOfDay tod = GameManager.GetTimeOfDayComponent();
             float numSecondsDelta = tod.GetTODSeconds(Time.deltaTime);
+
+            List<ShadowHeater> killList = new List<ShadowHeater>();
+
             foreach (ShadowHeater sh in ShadowHeaters)
             {
                 totalHeatPower += sh.Power;
@@ -123,9 +126,15 @@ namespace CoolHome
                 if (sh.Seconds < 0)
                 {
                     CoolHome.spaceManager.UnregisterHeater(sh.PDID);
-                    ShadowHeaters.Remove(sh);
+                    killList.Add(sh);
                 }
             }
+
+            foreach (ShadowHeater sh in killList)
+            {
+                ShadowHeaters.Remove(sh);
+            }
+
             if (totalHeatPower > 0) Heat(totalHeatPower);
 
             HeatLoss();
